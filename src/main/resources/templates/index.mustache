@@ -1,0 +1,26 @@
+{{> layout/header}}
+<div class="container p-5">
+    <h1 class="title mb-4">Tencoding Blog</h1>
+    <form action="/board/search" method="get">
+        <div class="input-group mb-3">
+            <input type="text" name="keyword" class="form-control" placeholder="Search">
+            <button class="btn btn-success" type="submit">검색</button>
+        </div>
+    </form>
+    <div class="d-flex justify-content-between mb-3">
+        <h3 class="title">Board</h3>
+        <a href="/board/list" class="btn btn-outline-none ">➕</a>
+    </div>
+    {{# boardList}}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h4 class="card-title mb-3">{{title}}</h4>
+                <a href="/board/{{id}}" class="btn btn-primary">상세보기</a>
+            </div>
+        </div>
+    {{/ boardList}}
+    <div class="text-end">
+        <a href="/board/save" class="btn btn-success text-decoration-none">게시글 작성</a>
+    </div>
+</div>
+{{> layout/footer}}
