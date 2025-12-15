@@ -2,7 +2,6 @@ package org.example.demo_ssr_v1.board;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.example.demo_ssr_v1._cors.errors.exception.Exception401;
 import org.example.demo_ssr_v1._cors.errors.exception.Exception403;
 import org.example.demo_ssr_v1._cors.errors.exception.Exception404;
 import org.example.demo_ssr_v1.user.User;
@@ -32,9 +31,9 @@ public class BoardController {
 
         // 1. 인증 검사 o
         User sessionUser = (User) session.getAttribute("sessionUser"); // sessionUser -> 상수
-        if(sessionUser == null) {
-            throw new Exception401("로그인하지 않은 사용자의 요청");
-        }
+//        if(sessionUser == null) {
+//            throw new Exception401("로그인하지 않은 사용자의 요청");
+//        }
         // 2. 인가 처리 o
         Board board =  repository.findById(id);
         if(board == null) {
@@ -65,9 +64,9 @@ public class BoardController {
     ) {
         // 1. 인증 처리
         User sessionUser = (User) session.getAttribute("sessionUser");
-        if(sessionUser == null) {
-            throw new Exception401("로그인하지 않은 사용자의 요청");
-        }
+//        if(sessionUser == null) {
+//            throw new Exception401("로그인하지 않은 사용자의 요청");
+//        }
         // 2. 인가 처리
         Board board = repository.findById(id);
         if(!board.isOwner(sessionUser.getId())) {
@@ -105,9 +104,9 @@ public class BoardController {
     @GetMapping("/board/save")
     public String saveFrom(HttpSession session) {
         User sessionUser = (User) session.getAttribute("sessionUser");
-        if(sessionUser == null) {
-            throw new Exception401("로그인하지 않은 사용자의 요청");
-        }
+//        if(sessionUser == null) {
+//            throw new Exception401("로그인하지 않은 사용자의 요청");
+//        }
 
         return "board/save-form";
     }
@@ -122,9 +121,9 @@ public class BoardController {
     public String saveProc(BoardRequest.SaveDTO saveDTO, HttpSession session) {
         // 인증 처리
         User sessionUser = (User) session.getAttribute("sessionUser");
-        if(sessionUser == null) {
-            throw new Exception401("로그인하지 않은 사용자의 요청");
-        }
+//        if(sessionUser == null) {
+//            throw new Exception401("로그인하지 않은 사용자의 요청");
+//        }
 
         Board board = saveDTO.toEntity(sessionUser);
         repository.save(board);
@@ -142,9 +141,9 @@ public class BoardController {
     public String delete(@PathVariable Long id, HttpSession session) {
         // 1. 인증 처리
         User sessionUser = (User) session.getAttribute("sessionUser");
-        if(sessionUser == null) {
-            throw new Exception401("로그인하지 않은 사용자의 요청");
-        }
+//        if(sessionUser == null) {
+//            throw new Exception401("로그인하지 않은 사용자의 요청");
+//        }
 
         // 2. 인가 처리 || 관리자 권한
         Board board = repository.findById(id);
