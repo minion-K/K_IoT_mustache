@@ -9,6 +9,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+
+/**
+ * 사용자 Controller (표현 계층)
+ * 핵심 개념
+ * - HTTP 요청을 받아서 처리
+ * - 요청 데이터 검증 및 파라미터 바인딩 처리
+ * - Service Layer에 비즈니스 로직을 위임
+ * - 응답 데이터를 View에 전달
+ * */
 @RequiredArgsConstructor
 @Controller
 public class UserController {
