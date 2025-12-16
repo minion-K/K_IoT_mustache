@@ -2,8 +2,6 @@ package org.example.demo_ssr_v1.board;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.example.demo_ssr_v1._cors.errors.exception.Exception403;
-import org.example.demo_ssr_v1._cors.errors.exception.Exception404;
 import org.example.demo_ssr_v1.user.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,8 +14,7 @@ import java.util.List;
 @Controller // IoC
 @RequiredArgsConstructor
 public class BoardController {
-
-    private final BoardPersistRepository repository;
+    private final BoardService boardService;
 
     /**
      * 게시글 수정 화면 요청
@@ -31,18 +28,7 @@ public class BoardController {
 
         // 1. 인증 검사 o
         User sessionUser = (User) session.getAttribute("sessionUser"); // sessionUser -> 상수
-//        if(sessionUser == null) {
-//            throw new Exception401("로그인하지 않은 사용자의 요청");
-//        }
-        // 2. 인가 처리 o
-        Board board =  repository.findById(id);
-        if(board == null) {
-            throw new Exception404("게시글을 찾을 수 없습니다.");
-        }
-
-        if(!board.isOwner(sessionUser.getId())) {
-            throw new Exception403("게시글 수정 권한이 없습니다.");
-        }
+        BoardResponse.updateFormDTO board = boardService.게시글수정화면(id, sessionUser.getId());
 
         model.addAttribute("board", board);
 
@@ -64,21 +50,9 @@ public class BoardController {
     ) {
         // 1. 인증 처리
         User sessionUser = (User) session.getAttribute("sessionUser");
-//        if(sessionUser == null) {
-//            throw new Exception401("로그인하지 않은 사용자의 요청");
-//        }
-        // 2. 인가 처리
-        Board board = repository.findById(id);
-        if(!board.isOwner(sessionUser.getId())) {
-            throw new Exception403("게시글 수정 권한이 없습니다.");
-        }
+        updateDTO.validate();
 
-        try {
-            repository.updateById(id, updateDTO);
-            // 더티 체킹 활용
-        } catch (Exception e) {
-            throw new RuntimeException("게시글 수정 실패");
-        }
+        boardService.게시글수정(updateDTO, id, sessionUser.getId());
 
         return "redirect:/board/list";
     }
@@ -90,7 +64,7 @@ public class BoardController {
      */
     @GetMapping({"/board/list"})
     public String boardList(Model model) {
-        List<Board> boardList = repository.findAll();
+        List<BoardResponse.ListDTO> boardList = boardService.게시글목록조회();
         model.addAttribute("boardList", boardList);
 
         return "board/list";
@@ -104,9 +78,6 @@ public class BoardController {
     @GetMapping("/board/save")
     public String saveFrom(HttpSession session) {
         User sessionUser = (User) session.getAttribute("sessionUser");
-//        if(sessionUser == null) {
-//            throw new Exception401("로그인하지 않은 사용자의 요청");
-//        }
 
         return "board/save-form";
     }
@@ -121,12 +92,8 @@ public class BoardController {
     public String saveProc(BoardRequest.SaveDTO saveDTO, HttpSession session) {
         // 인증 처리
         User sessionUser = (User) session.getAttribute("sessionUser");
-//        if(sessionUser == null) {
-//            throw new Exception401("로그인하지 않은 사용자의 요청");
-//        }
 
-        Board board = saveDTO.toEntity(sessionUser);
-        repository.save(board);
+        boardService.게시글작성(saveDTO, sessionUser);
 
         return "redirect:/";
     }
@@ -146,12 +113,7 @@ public class BoardController {
 //        }
 
         // 2. 인가 처리 || 관리자 권한
-        Board board = repository.findById(id);
-        if(!board.isOwner(sessionUser.getId())) {
-            throw new Exception403("게시글 삭제 권한이 없습니다.");
-        }
-
-        repository.deleteById(id);
+        boardService.게시글삭제(id, sessionUser.getId());
 
         return "redirect:/";
     }
@@ -163,15 +125,18 @@ public class BoardController {
      * @return
      */
     @GetMapping("board/{id}")
-    public String detail(@PathVariable Long id, Model model) {
+    public String detail(@PathVariable Long id, Model model, HttpSession session) {
+        BoardResponse.DetailDTO board = boardService.게시글상세보기(id);
 
-        Board board = repository.findById(id);
-        if(board == null) {
-            // 404
-            throw new Exception404("게시글을 찾을 수 없습니다.: " + id);
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        boolean isOwner = false;
+
+        if(sessionUser != null && board.getUserId() != null) {
+            isOwner = board.getUserId().equals(sessionUser.getId());
         }
 
         model.addAttribute("board", board);
+        model.addAttribute("isOwner", isOwner);
 
         return "board/detail";
     }

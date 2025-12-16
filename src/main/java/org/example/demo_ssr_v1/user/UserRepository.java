@@ -6,15 +6,16 @@ import java.util.Optional;
 
 // JpaRepository -> @Repository 있음 (IoC 됨)
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByUsername(String username);
 
     // 쿼리 메서드 네이밍
     // - findBy: 조회 시작
     // - Username: 엔티티의 username 필드명 일치
     // - Optional<User>: 결과가 없을 수 있으므로 Optional로 반환
 
+    Optional<User> findByUsername(String username);
     Optional<User> findByUsernameAndPassword(String username, String password);
-    // SELECT * FROM user_tb WHERE username = ? AND password = ?
+
+//     SELECT * FROM user_tb WHERE username = ? AND password = ?
 
     // JPQL(객체 쿼리)
     // Query DSL

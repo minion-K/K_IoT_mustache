@@ -25,7 +25,7 @@ public class BoardService {
      */
     public List<BoardResponse.ListDTO> 게시글목록조회() {
         // 데이터 타입을 변환하여 맞춰야 함
-        List<Board> boardList = boardRepository.findByOrderByCreatedAtDesc();
+        List<Board> boardList = boardRepository.findByWithUserOrderByCreatedAtDesc();
         // List<Board> --> List<BoardResponse.ListDTO> 로 변환
         // 1. 반복문
 //        List<BoardResponse.ListDTO> dtoList = new ArrayList<>();
@@ -33,15 +33,19 @@ public class BoardService {
 //            BoardResponse.ListDTO dto = new BoardResponse.ListDTO(board);
 //            dtoList.add(dto);
 //        }
-        // 람다 표현식
+        // 람다 표현식(메서드 참조)
         return boardList.stream()
                 .map(BoardResponse.ListDTO::new)
                 .collect(Collectors.toList());
+
+//        return dtoList;
     }
 
-    public Board 게시글상세보기(Long boardId) {
-        return boardRepository.findById(boardId)
+    public BoardResponse.DetailDTO 게시글상세보기(Long boardId) {
+        Board board = boardRepository.findByWithUser(boardId)
                 .orElseThrow(() -> new Exception404("게시글을 찾을 수 없습니다."));
+
+        return new BoardResponse.DetailDTO(board);
     }
 
     // 1. 트랜잭션 처리
@@ -51,20 +55,22 @@ public class BoardService {
         // DTO에서 직접 new 하여 생성한 Board 객체일 뿐 아직 영속화된 객체는 아님
         Board board = saveDTO.toEntity(sessionUser);
 
-        return boardRepository.save(board);
+        boardRepository.save(board);
+
+        return board;
     }
 
     // 1. 게시글 조회
     // 2. 인가 처리
-    public Board 게시글수정화면(Long boardId, Long sessionUserId) {
-        Board board = boardRepository.findById(boardId)
+    public BoardResponse.updateFormDTO 게시글수정화면(Long boardId, Long sessionUserId) {
+        Board board = boardRepository.findByWithUser(boardId)
                 .orElseThrow(() -> new Exception404("게시글을 찾을 수 없습니다."));
 
         if(!board.isOwner(sessionUserId)) {
             throw new Exception403("게시글 수정 권한이 없습니다.");
         }
 
-        return board;
+        return new BoardResponse.updateFormDTO(board);
     }
 
     // 1. 트랜잭션 처리
@@ -72,8 +78,8 @@ public class BoardService {
     // 3. 인가 처리
     // 4. 조회된 board의 상태값 변경 (더티 체킹)
     @Transactional
-    public void 게시글수정(BoardRequest.UpdateDTO updateDTO, Long boardId, Long sessionUserId) {
-        Board board = boardRepository.findById(boardId)
+    public Board 게시글수정(BoardRequest.UpdateDTO updateDTO, Long boardId, Long sessionUserId) {
+        Board board = boardRepository.findByWithUser(boardId)
                 .orElseThrow(() -> new Exception404("게시글을 찾을 수 없습니다."));
 
         if(!board.isOwner(sessionUserId)) {
@@ -81,6 +87,8 @@ public class BoardService {
         }
 
         board.update(updateDTO);
+
+        return board;
     }
 
     // 1. 트랜잭션 처리

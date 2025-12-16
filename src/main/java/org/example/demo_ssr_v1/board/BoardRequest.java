@@ -36,7 +36,6 @@ public class BoardRequest {
                 throw new IllegalArgumentException("내용은 필수 입니다");
             }
         }
-
     }
 
 }
