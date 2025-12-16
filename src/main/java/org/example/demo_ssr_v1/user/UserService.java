@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserService {
+    // 객체 지향 개념 -> SOLID 원칙
+    // DIP - 추상화가 높은 객체를 선언하는 것이 좋음
     private final UserRepository userRepository;
 
     @Transactional

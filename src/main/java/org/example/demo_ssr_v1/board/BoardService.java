@@ -7,7 +7,9 @@ import org.example.demo_ssr_v1.user.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,8 +23,20 @@ public class BoardService {
      *  - 읽기 전용 트랜잭션 - 성능 최적화
      * @return 게시글 목록 (생성일 기준으로 내림차순)
      */
-    public List<Board> 게시글목록조회() {
-        return boardRepository.findByOrderByCreatedAtDesc();
+    public List<BoardResponse.ListDTO> 게시글목록조회() {
+        // 데이터 타입을 변환하여 맞춰야 함
+        List<Board> boardList = boardRepository.findByOrderByCreatedAtDesc();
+        // List<Board> --> List<BoardResponse.ListDTO> 로 변환
+        // 1. 반복문
+//        List<BoardResponse.ListDTO> dtoList = new ArrayList<>();
+//        for(Board board: boardList) {
+//            BoardResponse.ListDTO dto = new BoardResponse.ListDTO(board);
+//            dtoList.add(dto);
+//        }
+        // 람다 표현식
+        return boardList.stream()
+                .map(BoardResponse.ListDTO::new)
+                .collect(Collectors.toList());
     }
 
     public Board 게시글상세보기(Long boardId) {

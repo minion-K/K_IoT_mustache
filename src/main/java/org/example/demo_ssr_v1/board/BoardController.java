@@ -148,7 +148,8 @@ public class BoardController {
         // 2. 인가 처리 || 관리자 권한
         Board board = repository.findById(id);
         if(!board.isOwner(sessionUser.getId())) {
-            throw new Exception403("게시글 삭제 권한이 없습니다.");        }
+            throw new Exception403("게시글 삭제 권한이 없습니다.");
+        }
 
         repository.deleteById(id);
 
