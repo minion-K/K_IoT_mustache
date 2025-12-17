@@ -4,10 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.example.demo_ssr_v1._cors.errors.exception.Exception403;
 import org.example.demo_ssr_v1._cors.errors.exception.Exception404;
 import org.example.demo_ssr_v1.user.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,28 +20,57 @@ import java.util.stream.Collectors;
 public class BoardService {
     private final BoardRepository boardRepository;
 
+//    /**
+//     * 게시글 목록 조회
+//     * 트랜잭션
+//     *  - 읽기 전용 트랜잭션 - 성능 최적화
+//     * @return 게시글 목록 (생성일 기준으로 내림차순)
+//     */
+//    public List<BoardResponse.ListDTO> 게시글목록조회() {
+//        // 데이터 타입을 변환하여 맞춰야 함
+//        List<Board> boardList = boardRepository.findByWithUserOrderByCreatedAtDesc();
+//        // List<Board> --> List<BoardResponse.ListDTO> 로 변환
+//        // 1. 반복문
+////        List<BoardResponse.ListDTO> dtoList = new ArrayList<>();
+////        for(Board board: boardList) {
+////            BoardResponse.ListDTO dto = new BoardResponse.ListDTO(board);
+////            dtoList.add(dto);
+////        }
+//        // 람다 표현식(메서드 참조)
+//        return boardList.stream()
+//                .map(BoardResponse.ListDTO::new)
+//                .collect(Collectors.toList());
+//
+////        return dtoList;
+//    }
+
     /**
-     * 게시글 목록 조회
+     * 게시글 목록 조회 (페이징 처리)
      * 트랜잭션
      *  - 읽기 전용 트랜잭션 - 성능 최적화
      * @return 게시글 목록 (생성일 기준으로 내림차순)
      */
-    public List<BoardResponse.ListDTO> 게시글목록조회() {
-        // 데이터 타입을 변환하여 맞춰야 함
-        List<Board> boardList = boardRepository.findByWithUserOrderByCreatedAtDesc();
-        // List<Board> --> List<BoardResponse.ListDTO> 로 변환
-        // 1. 반복문
-//        List<BoardResponse.ListDTO> dtoList = new ArrayList<>();
-//        for(Board board: boardList) {
-//            BoardResponse.ListDTO dto = new BoardResponse.ListDTO(board);
-//            dtoList.add(dto);
-//        }
-        // 람다 표현식(메서드 참조)
-        return boardList.stream()
-                .map(BoardResponse.ListDTO::new)
-                .collect(Collectors.toList());
+    public Page<Board> 게시글목록조회(int page, int size) {
+        // page는 0부터 시작
+        // ** 상한선 제한 **
+        // size는 기본값 5, 최소 1, 최대 50으로 제한
+        // 페이지 번호가 음수가 되는 것을 방지
+        int validPage = Math.max(0, page); // 양수값 보장
+        // 최소값 제한 - 최대값 제한 50으로 보장
+        // 최대값 제한 - 1, -50 (양수값 보장) 최소값
+        int validSize = Math.max(1, Math.min(50, size));
 
-//        return dtoList;
+        // 정렬 기준
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(validPage, validSize, sort);
+
+        Page<Board> page1 = boardRepository.findByWithUserOrderByCreatedAtDesc(pageable);
+
+        return boardRepository.findByWithUserOrderByCreatedAtDesc(pageable);
+
+//        return boardList.stream()
+//                .map(BoardResponse.ListDTO::new)
+//                .collect(Collectors.toList());
     }
 
     public BoardResponse.DetailDTO 게시글상세보기(Long boardId) {

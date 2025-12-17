@@ -45,7 +45,7 @@ public class MyExceptionHandler {
 //        return "err/401";
 //    }
 
-    // 401 UnAuthrized
+    // 401 UnAuthorized
     @ExceptionHandler(Exception401.class)
     public ResponseEntity<String> ex401(Exception401 e, HttpServletRequest request) {
         String script = "<script>" +

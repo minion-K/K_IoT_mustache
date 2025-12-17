@@ -12,7 +12,7 @@ public class MyDateUtil {
     private static final ZoneId ZONE_UTC = ZoneOffset.UTC;
 
     private static final DateTimeFormatter KST_FORMAT
-            = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public static String KstString(Timestamp utcTime) {
         if(utcTime == null) return null;

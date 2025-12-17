@@ -3,6 +3,9 @@ package org.example.demo_ssr_v1.board;
 import lombok.Data;
 import org.example.demo_ssr_v1._cors.utils.MyDateUtil;
 import org.example.demo_ssr_v1.user.User;
+import org.springframework.data.domain.Page;
+
+import java.util.List;
 
 /**
  * 응답 DTO
@@ -73,4 +76,57 @@ public class BoardResponse {
             this.content = board.getContent();
         }
     }
-}
+
+    @Data
+    public static class PageDTO {
+        private List<ListDTO> content;
+        private int number; // 현재 페이지 번호 (0부터 시작)
+        private int size; // 한 페이지 당 개수
+        private int totalPages; // 전체 페이지 수
+        private Long totalElements; // 전체 게시글 수
+        private boolean first; // 첫 페이지 여부
+        private boolean last; // 마지막 페이지 여부
+        private boolean hasNext; // 다음 페이지 존재 여부
+        private boolean hasPrevious; // 이전 페이지 존재 여부
+
+        private Integer previousPageNumber; // 이전 페이지 번호(없으면 null)
+        private Integer nextPageNumber; // 다음 페이지 번호(없으면 null)
+
+        private List<PageLink> pageLinks; // 페이지 번호 링크 목록
+
+        public PageDTO(Page<Board> page) {
+            // List<Board>
+            // page.content -> List<Board>
+            // 게시글 리스트 DTO -> BoardResponse.ListDTO
+            this.content = page.getContent().stream()
+                    .map(ListDTO::new)
+                    .toList();
+            this.number = page.getNumber();
+            this.size = page.getSize();
+            this.totalPages = page.getTotalPages();
+            this.totalElements = page.getTotalElements();
+            this.first = page.isFirst();
+            this.last = page.isLast();
+            this.hasNext = page.hasNext();
+            this.hasPrevious = page.hasPrevious();
+
+            this.previousPageNumber = page.hasPrevious() ? page.getNumber() : null;
+            this.nextPageNumber = page.hasNext() ? page.getNumber() : null;
+
+            // 페이지 링크 생성 (현재 기준으로 앞뒤 2페이지 씩 표시)
+            // this.pageLinks =
+        } // end of Constructor
+
+        private List<PageLink> generatePageLinks() {
+            // 코드 구현
+            return null;
+        }
+    }
+
+    // 페이지 링크 클래스 설계
+    @Data
+    public static class PageLink {
+        private int displayNumber; // 표시할 페이지 번호
+        private boolean active; //
+    }
+} // end of outer class

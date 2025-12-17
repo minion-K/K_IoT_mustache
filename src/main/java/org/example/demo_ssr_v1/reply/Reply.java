@@ -41,7 +41,7 @@ public class Reply {
     }
 
     // 소유자 여부 확인(댓글)
-    public boolean idOwner(Long userId) {
+    public boolean isOwner(Long userId) {
         if(this.user == null || userId == null) {
             return false;
         }
@@ -63,7 +63,5 @@ public class Reply {
         if(newString.length() > 500) {
             throw new Exception400("댓글을 500자 이하여야 합니다.");
         }
-
-
     }
 }
