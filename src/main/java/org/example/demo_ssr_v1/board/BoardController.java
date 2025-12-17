@@ -67,23 +67,19 @@ public class BoardController {
      * 예시 /board/list?page=1&size=5
      */
     @GetMapping({"/board/list"})
-    @ResponseBody // 뷰 리졸브 X -> 데이터 반환
-    public Page<Board> boardList(
+    public String boardList(
             Model model,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "5") int size
+            @RequestParam(defaultValue = "3") int size
     ) {
         // 1. 페이지 번호 변환: 사용자는 1부터 시작하는 페이지번호를 사용하지만
         //      , Spring의 Pageable은 0부터 시작하므로 1을 빼서 변환해야 함
         int pageIndex = Math.max(0, page - 1);
         // size = 5 (일단 고정) - 한 페이지에 보여야 할 게시글 개수
+        BoardResponse.PageDTO boardPage = boardService.게시글목록조회(pageIndex, size);
+        model.addAttribute("boardPage", boardPage);
 
-        return boardService.게시글목록조회(pageIndex, size);
-
-//        List<BoardResponse.ListDTO> boardList = boardService.게시글목록조회(pageIndex, size);
-//        model.addAttribute("boardList", boardList);
-//
-//        return "/board/list";
+        return "board/list";
     }
 
     /** TODO 삭제 예졍
@@ -97,7 +93,7 @@ public class BoardController {
 //        List<BoardResponse.ListDTO> boardList = boardService.게시글목록조회();
 //        model.addAttribute("boardList", boardList);
 //
-//        return "/board/list";
+//        return "board/list";
 //    }
 
     /**

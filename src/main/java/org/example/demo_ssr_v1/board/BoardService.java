@@ -50,7 +50,7 @@ public class BoardService {
      *  - 읽기 전용 트랜잭션 - 성능 최적화
      * @return 게시글 목록 (생성일 기준으로 내림차순)
      */
-    public Page<Board> 게시글목록조회(int page, int size) {
+    public BoardResponse.PageDTO 게시글목록조회(int page, int size) {
         // page는 0부터 시작
         // ** 상한선 제한 **
         // size는 기본값 5, 최소 1, 최대 50으로 제한
@@ -64,13 +64,9 @@ public class BoardService {
         Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
         Pageable pageable = PageRequest.of(validPage, validSize, sort);
 
-        Page<Board> page1 = boardRepository.findByWithUserOrderByCreatedAtDesc(pageable);
+        Page<Board> boardPage = boardRepository.findByWithUserOrderByCreatedAtDesc(pageable);
 
-        return boardRepository.findByWithUserOrderByCreatedAtDesc(pageable);
-
-//        return boardList.stream()
-//                .map(BoardResponse.ListDTO::new)
-//                .collect(Collectors.toList());
+        return new BoardResponse.PageDTO(boardPage);
     }
 
     public BoardResponse.DetailDTO 게시글상세보기(Long boardId) {

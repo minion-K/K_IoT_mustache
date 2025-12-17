@@ -5,6 +5,7 @@ import org.example.demo_ssr_v1._cors.utils.MyDateUtil;
 import org.example.demo_ssr_v1.user.User;
 import org.springframework.data.domain.Page;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -111,15 +112,31 @@ public class BoardResponse {
             this.hasPrevious = page.hasPrevious();
 
             this.previousPageNumber = page.hasPrevious() ? page.getNumber() : null;
-            this.nextPageNumber = page.hasNext() ? page.getNumber() : null;
-
+            this.nextPageNumber = page.hasNext() ? page.getNumber() + 2 : null;
             // 페이지 링크 생성 (현재 기준으로 앞뒤 2페이지 씩 표시)
-            // this.pageLinks =
+            this.pageLinks = generatePageLinks(page);
         } // end of Constructor
 
-        private List<PageLink> generatePageLinks() {
-            // 코드 구현
-            return null;
+        private List<PageLink> generatePageLinks(Page<Board> page) {
+            List<PageLink> links = new ArrayList<>();
+
+            int currentPage = page.getNumber() + 1;
+            int totalPages = page.getTotalPages();
+
+            // 현재 페이지 번호 5인 상태
+            // 3 4 [5] 6 7
+            int startPage = Math.max(1, currentPage - 2);
+            int endPage = Math.min(totalPages, currentPage + 2);
+
+            for(int i = startPage; i <= endPage; i++) {
+                PageLink link = new PageLink();
+                link.setDisplayNumber(i);
+                link.setActive(i == currentPage);
+
+                links.add(link);
+            }
+
+            return links;
         }
     }
 
